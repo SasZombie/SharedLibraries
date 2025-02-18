@@ -2,32 +2,35 @@
 #include <raylib.h>
 #include <dlfcn.h>
 
-typedef void (*function)();
+typedef void (*function)(int x, int y);
 
 int main()
 {
-    const char* so_file = "./libmylibrary.so";
-    void* handle = dlopen(so_file, RTLD_LAZY);
-    
-    function my_function = (function) dlsym(handle, "drawRec");
+    const char *so_file = "./libshared.so";
+    void *handle = dlopen(so_file, RTLD_LAZY);
 
-
-
+    function drawingRect = (function)dlsym(handle, "drawRec");
     InitWindow(600, 800, "Test");
+    SetTargetFPS(60);
+
 
     while (!WindowShouldClose())
     {
+
         BeginDrawing();
+
         ClearBackground(BLACK);
-        if(IsKeyPressed(KEY_R))
+
+        if (IsKeyPressed(KEY_R))
         {
             dlclose(handle);
             handle = dlopen(so_file, RTLD_LAZY);
-            my_function = (function) dlsym(handle, "drawRec");
+            drawingRect = (function)dlsym(handle, "drawRec");
         }
+ 
 
-        my_function();
         EndDrawing();
     }
-    
+
+    CloseWindow();
 }
